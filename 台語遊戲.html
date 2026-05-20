@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>台語情境學習遊戲</title>
+<style>
+    body {
+        font-family: Arial;
+        text-align: center;
+        background: #f5f5f5;
+    }
+    .game-box {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        width: 420px;
+        margin: 50px auto;
+        box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    button {
+        display: block;
+        width: 100%;
+        margin: 10px 0;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        background: #ddd;
+    }
+    button:hover {
+        background: #bbb;
+    }
+    .correct { background: #4CAF50 !important; color: white; }
+    .wrong { background: #f44336 !important; color: white; }
+</style>
+</head>
+<body>
+
+<div class="game-box">
+    <h2>🍢 台語情境挑戰</h2>
+    <p id="question"></p>
+    <div id="options"></div>
+    <p id="result"></p>
+    <p>第 <span id="current">1</span> / 11題</p>
+    <p>分數：<span id="score">0</span></p>
+</div>
+
+<script>
+ const questionBank = [
+    { q: "我要一份雞排", o: ["我欲一份雞排","12315","我愛食雞排"], a: 0 },
+    { q: "這多少錢？", o: ["這偌濟錢？","好吃嗎","我要這個"], a: 0 },
+    { q: "謝謝老闆", o: ["拍謝","感謝老闆","再見"], a: 1 },
+    { q: "我要珍珠奶茶", o: ["我欲真珠奶茶","我無愛真珠","珍奶好喝"], a: 0 },
+    { q: "可以便宜一點嗎", o: ["會使較俗無","我不要","太貴"], a: 0 },
+    { q: "我要兩份", o: ["我欲兩份","兩個好","我要一個"], a: 0 },
+    { q: "在哪裡？", o: ["佇佗位？","多少錢","我知道"], a: 0 },
+    { q: "很好吃", o: ["真歹吃","真好食","我不吃"], a: 1 },
+    { q: "我要外帶", o: ["我欲紮走","內用","不要"], a: 0 },
+    { q: "不用了謝謝", o: ["免啦感謝","我要","再來一份"], a: 0 },
+    { q: "有辣嗎？", o: ["有辣無？","好吃嗎","多少錢"], a: 0 },
+    { q: "廁所在哪裡？", o: ["便所佇佗位？","方便在佗位","大便在佗位"], a: 0 },
+    { q: "我吃飽了", o: ["我食飽矣","我要吃","不好吃"], a: 0 }
+];
+
+// 隨機打亂
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
+
+// 隨機抽10題
+const questions = shuffle([...questionBank]).slice(0, 10);
+
+let current = 0;
+let score = 0;
+
+function loadQuestion() {
+    document.getElementById("result").innerText = "";
+
+    let q = questions[current];
+    document.getElementById("question").innerText = q.q;
+    document.getElementById("current").innerText = current + 1;
+
+    let shuffledOptions = q.o.map((opt, i) => ({text: opt, index: i}));
+    shuffledOptions = shuffle(shuffledOptions);
+
+    let html = "";
+    shuffledOptions.forEach(opt => {
+        html += `<button onclick="checkAnswer(${opt.index}, this)">${opt.text}</button>`;
+    });
+
+    document.getElementById("options").innerHTML = html;
+}
+
+function checkAnswer(index, btn) {
+    let q = questions[current];
+    let buttons = document.querySelectorAll("button");
+
+    if(index === q.a){
+        btn.classList.add("correct");
+        document.getElementById("result").innerText = "✅ 正確";
+        score++;
+    } else {
+        btn.classList.add("wrong");
+        document.getElementById("result").innerText = "❌ 錯誤";
+
+        buttons.forEach(b => {
+            if(b.innerText === q.o[q.a]){
+                b.classList.add("correct");
+            }
+        });
+    }
+
+    document.getElementById("score").innerText = score;
+
+    setTimeout(() => {
+        current++;
+        if(current < 10){
+            loadQuestion();
+        } else {
+            document.getElementById("question").innerText = "🎉 遊戲結束";
+            document.getElementById("options").innerHTML = "";
+            document.getElementById("result").innerText = "最終分數：" + score + " / 10";
+        }
+    }, 1000);
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>
